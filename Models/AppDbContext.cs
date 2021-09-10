@@ -21,6 +21,11 @@ namespace EmployeeManagement.Models
             modelBuilder.Seed();
             base.OnModelCreating(modelBuilder);
 
+            //on delete no action
+            foreach (var foreignKey in modelBuilder.Model.GetEntityTypes().SelectMany(e=> e.GetForeignKeys()))
+            {
+                foreignKey.DeleteBehavior = DeleteBehavior.Restrict;
+            }
 
         }
     }
