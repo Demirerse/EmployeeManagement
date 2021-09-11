@@ -1,7 +1,9 @@
 using EmployeeManagement.Models;
+using EmployeeManagement.Security;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.HttpsPolicy;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc.Authorization;
@@ -51,9 +53,34 @@ namespace EmployeeManagement
             {
                 options.AddPolicy("DeleteRolePolicy",
                     policy => policy.RequireClaim("Delete Role"));
+
+                options.AddPolicy("AdminRolePolicy",
+                    policy => policy.RequireRole("Admin"));
+
+                //options.InvokeHandlersAfterFailure = false;
+
+                options.AddPolicy("EditRolePolicy", 
+                    policy => policy.AddRequirements( new ManageAdminRolesAndClaimsRequirement()
+                ));
+            });
+
+            services.AddSingleton<IAuthorizationHandler, CanEditOnlyOtherAdminROlesAndClaimsHandler>();
+            services.AddSingleton<IAuthorizationHandler, SuperAdminHandler>();
+
+            services.ConfigureApplicationCookie(options =>
+            {
+                options.AccessDeniedPath = new PathString("/Administration/AccessDenied");
             });
 
             services.AddScoped<IEmployeeRepository, SQLEmployeeRepository>();
+
+            //2.2.2 vs indir!
+            services.AddAuthentication().AddGoogle(options =>
+            {
+                options.ClientId = "443361411874-hrvunf90ano2k6hfojmr1p6jj6kavif1.apps.googleusercontent.com";
+                options.ClientSecret = "p1YMQNo0CvbrPZaXwils6Xju";
+
+            });
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
