@@ -38,7 +38,10 @@ namespace EmployeeManagement
                 options.Password.RequireLowercase = false;
                 options.Password.RequiredUniqueChars = 0;
                 options.Password.RequireNonAlphanumeric = false;
-            }).AddEntityFrameworkStores<AppDbContext>();
+
+                options.SignIn.RequireConfirmedEmail = true;
+            }).AddEntityFrameworkStores<AppDbContext>()
+                .AddDefaultTokenProviders();
 
             services.AddControllersWithViews();
 
@@ -74,12 +77,16 @@ namespace EmployeeManagement
 
             services.AddScoped<IEmployeeRepository, SQLEmployeeRepository>();
 
-            //2.2.2 vs indir!
+            //3.1 vs indir!
             services.AddAuthentication().AddGoogle(options =>
             {
                 options.ClientId = "443361411874-hrvunf90ano2k6hfojmr1p6jj6kavif1.apps.googleusercontent.com";
                 options.ClientSecret = "p1YMQNo0CvbrPZaXwils6Xju";
 
+            }).AddFacebook(options =>
+            {
+                options.AppId = "4205749336176111";
+                options.AppSecret = "17914da8bcb0da966d811544b032cad9";
             });
         }
 
